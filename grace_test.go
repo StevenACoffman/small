@@ -17,7 +17,7 @@ func TestGrace(t *testing.T) {
 			_ = runServer()
 			result = 1
 		}()
-		syscall.Kill(os.Getpid(), syscall.SIGUSR1)
+		syscall.Kill(os.Getppid(), syscall.SIGUSR1)
 
 		if result != 1 {
 			t.Error("Result is not equal 1")
