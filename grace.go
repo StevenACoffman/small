@@ -43,9 +43,10 @@ func runServer() error {
 	// listen to quit channel, tell server to shutdown
 	go func() {
 		//cleanup: on interrupt shutdown webserver
-		<-quit	
+		<-quit
+		fmt.Fprintf(os.Stderr, "Woohoo! Look at me\n")
 		err := httpServer.server.Shutdown(context.Background())
-		fmt.Fprintf(os.Stderr, "Woohoo! Look at me")
+
 		if err != nil {
 			httpServer.log.Printf("An error occurred on shutdown: %v", err)
 		}

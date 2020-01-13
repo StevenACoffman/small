@@ -3,10 +3,10 @@ github.com/StevenACoffman/small/grace.go:19.13,21.16 2 0
 github.com/StevenACoffman/small/grace.go:21.16,24.3 2 0
 github.com/StevenACoffman/small/grace.go:24.8,27.3 2 0
 github.com/StevenACoffman/small/grace.go:30.24,44.12 4 1
-github.com/StevenACoffman/small/grace.go:55.2,55.76 1 0
-github.com/StevenACoffman/small/grace.go:58.2,58.12 1 0
-github.com/StevenACoffman/small/grace.go:44.12,49.17 4 0
-github.com/StevenACoffman/small/grace.go:49.17,51.4 1 0
-github.com/StevenACoffman/small/grace.go:55.76,57.3 1 0
-github.com/StevenACoffman/small/grace.go:61.30,74.2 5 1
-github.com/StevenACoffman/small/grace.go:76.58,80.2 3 1
+github.com/StevenACoffman/small/grace.go:56.2,56.76 1 0
+github.com/StevenACoffman/small/grace.go:59.2,59.12 1 0
+github.com/StevenACoffman/small/grace.go:44.12,50.17 4 0
+github.com/StevenACoffman/small/grace.go:50.17,52.4 1 0
+github.com/StevenACoffman/small/grace.go:56.76,58.3 1 0
+github.com/StevenACoffman/small/grace.go:62.30,75.2 5 1
+github.com/StevenACoffman/small/grace.go:77.58,81.2 3 1
