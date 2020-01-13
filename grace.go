@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,22 +9,19 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	"context"
-
 )
 
 type Server struct {
 	server *http.Server
-	log *log.Logger
+	log    *log.Logger
 }
 
 func main() {
-
 	err := runServer()
 	if err == nil {
 		log.Println("finished clean")
 		os.Exit(0)
-	}	else {
+	} else {
 		log.Printf("Got error: %v", err)
 		os.Exit(1)
 	}
@@ -32,42 +30,26 @@ func main() {
 func runServer() error {
 	httpServer := newHTTPServer()
 
-	ctx := context.Background()
-
-	// trap Ctrl+C and call cancel on the context
-	ctx, cancel := context.WithCancel(ctx)
 	quit := make(chan os.Signal, 1)
 
+	// listen for interrupt signals, send to quit channel
 	signal.Notify(quit,
 		os.Interrupt,    // interrupt = SIGINT = Ctrl+C
 		syscall.SIGQUIT, // Ctrl-\
 		syscall.SIGTERM, // "the normal way to politely ask a program to terminate"
 	)
 
-	//defer func() {
-	//	signal.Stop(quit)
-	//	cancel()
-	//}()
-
-	go httpServer.shutdowner(ctx, cancel, quit)
-
-	return httpServer.ListenAndServe()
-}
-
-// shutdowner listens for interrupt signals, and will trigger the server to gracefully terminate.
- func (httpServer *Server) shutdowner(ctx context.Context, cancel context.CancelFunc, quit chan os.Signal) {
-	for {
-		select {
-		case sig := <-quit:
-			log.Printf("Got %s signal. Aborting...\n", sig)
-			cancel()
-		case <-ctx.Done():
-			//cleanup: on interrupt shutdown webserver
-			httpServer.server.Shutdown(ctx)
+	// listen to quit channel, tell server to shutdown
+	go func() {
+		<-quit
+		//cleanup: on interrupt shutdown webserver
+		err := httpServer.server.Shutdown(context.Background())
+		if err != nil {
+			httpServer.log.Printf("An error occurred on shutdown: %v", err)
 		}
-	}
-}
-func (httpServer *Server) ListenAndServe() error {
+	}()
+
+	// listen and serve until error or shutdown is called
 	if err := httpServer.server.ListenAndServe(); err != http.ErrServerClosed {
 		return err
 	}
@@ -85,8 +67,8 @@ func newHTTPServer() *Server {
 		"INFO: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 
-	logger.Printf("HTTP Metrics server serving at %s", ":8080")
-	return  &Server{httpServer, logger}
+	logger.Printf("HTTP server serving at %s", ":8080")
+	return &Server{httpServer, logger}
 }
 
 func HealthCheck(w http.ResponseWriter, r *http.Request) {
