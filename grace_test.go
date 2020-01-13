@@ -6,6 +6,7 @@ import (
 	"os"
 	"syscall"
 	"testing"
+	"time"
 )
 
 func TestGrace(t *testing.T) {
@@ -18,6 +19,8 @@ func TestGrace(t *testing.T) {
 			result = 1
 		}()
 		syscall.Kill(os.Getppid(), syscall.SIGUSR1)
+
+		time.Sleep(10 * time.Millisecond)
 
 		if result != 1 {
 			t.Error("Result is not equal 1")
