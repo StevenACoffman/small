@@ -13,7 +13,7 @@ import (
 
 type Server struct {
 	server *http.Server
-	log    *log.Logger
+	log *log.Logger
 }
 
 func main() {
@@ -37,13 +37,15 @@ func runServer() error {
 		os.Interrupt,    // interrupt = SIGINT = Ctrl+C
 		syscall.SIGQUIT, // Ctrl-\
 		syscall.SIGTERM, // "the normal way to politely ask a program to terminate"
+		syscall.SIGUSR1,
 	)
 
 	// listen to quit channel, tell server to shutdown
 	go func() {
-		<-quit
 		//cleanup: on interrupt shutdown webserver
+		<-quit	
 		err := httpServer.server.Shutdown(context.Background())
+		fmt.Fprintf(os.Stderr, "Woohoo! Look at me")
 		if err != nil {
 			httpServer.log.Printf("An error occurred on shutdown: %v", err)
 		}
@@ -68,7 +70,7 @@ func newHTTPServer() *Server {
 		log.Ldate|log.Ltime|log.Lshortfile)
 
 	logger.Printf("HTTP server serving at %s", ":8080")
-	return &Server{httpServer, logger}
+	return  &Server{httpServer, logger}
 }
 
 func HealthCheck(w http.ResponseWriter, r *http.Request) {

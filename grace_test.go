@@ -11,13 +11,13 @@ import (
 func TestGrace(t *testing.T) {
 	t.Run("Wait with func", func(t *testing.T) {
 		var result int
-		syscall.Kill(os.Getegid(), syscall.SIGTERM)
 
 		result = 1
 		go func() {
 			_ = runServer()
 			result = 1
 		}()
+		syscall.Kill(os.Getpid(), syscall.SIGUSR1)
 
 		if result != 1 {
 			t.Error("Result is not equal 1")
