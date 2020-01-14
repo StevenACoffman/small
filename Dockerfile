@@ -2,6 +2,7 @@
 # STEP 1 build executable binary
 ############################
 # golang debian buster 1.13.6 linux/amd64
+# FROM golang:1.13.6-buster
 # https://github.com/docker-library/golang/blob/master/1.13/buster/Dockerfile
 FROM golang@sha256:93a56423351235e070b3630e0a8b3e27d5e868883d4dff591f676315f208a574 as builder
 
@@ -27,7 +28,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
 ############################
 # STEP 2 build a small image
 ############################
-# using static nonroot image
+# FROM gcr.io/distroless/static:nonroot
 # user:group is nobody:nobody, uid:gid = 65534:65534
 FROM gcr.io/distroless/static@sha256:08322afd57db6c2fd7a4264bf0edd9913176835585493144ee9ffe0c8b576a76
 

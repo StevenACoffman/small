@@ -7,7 +7,7 @@ MAKEFLAGS += --no-builtin-rules
 
 GO11MODULES=on
 APP?=application
-REGISTRY?=docker.io/stevenacoffman
+REGISTRY?=stevenacoffman
 COMMIT_SHA=$(shell git rev-parse --short HEAD)
 VERSION=`git rev-parse HEAD`
 BUILD=`date +%FT%T%z`
@@ -56,7 +56,8 @@ docker-build-no-cache:	## - Build the smallest secure golang docker image based 
 .PHONY: ls
 ls: ## - List size docker images
 	@printf "\033[32m\xE2\x9c\x93 Look at the size dude !\n\033[0m"
-	@docker image ${REGISTRY}/${APP}:${COMMIT_SHA}
+	@echo image ls ${REGISTRY}/${APP}
+	@docker image ls ${REGISTRY}/${APP}
 
 .PHONY: docker-run
 docker-run:	## - Run the smallest and secured golang docker image based on distroless static
