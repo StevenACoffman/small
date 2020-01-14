@@ -35,5 +35,12 @@ FROM gcr.io/distroless/static@sha256:08322afd57db6c2fd7a4264bf0edd99131768355854
 # Copy our static executable
 COPY --from=builder /go/bin/hello /go/bin/hello
 
+ARG GIT_COMMIT=unknown
+LABEL git-commit=$GIT_COMMIT
+ARG GIT_BRANCH=unknown
+LABEL git-branch=$GIT_BRANCH
+ARG BUILD_TIME=unknown
+LABEL build_time=$BUILD_TIME
+
 # Run the hello binary.
 ENTRYPOINT ["/go/bin/hello"]

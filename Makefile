@@ -32,6 +32,7 @@ clean: ## - Cleans the binary
 	@gofmt -l -w -s .
 	@goimports -l -w .
 	@golines -m 80
+	@go mod tidy
 
 .PHONY: test
 test: ## - Runs go test with default values

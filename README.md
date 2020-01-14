@@ -1,7 +1,10 @@
-# Get Small with Docker and Go
+# Get Small with Distroless Docker and Go
 ### Create the smallest secured golang docker image
 
 Restricting what's in your runtime container to precisely what's necessary for your app is a best practice employed by Google and other tech giants that have used containers in production for many years. It improves the signal to noise of scanners (e.g. CVE) and reduces the burden of establishing provenance to just what you need.
+
+Running your containers as non-root prevents malicious code from gaining permissions in the container host and means that not just anyone who has pulled your container from the Docker Hub can gain access to everything on your server, for example.
+
 
 ```
 ✓ usage: make [target]
@@ -25,6 +28,18 @@ test                           - Runs go test with default values
 make build && make run
 ```
 
+#### [Security Best Practices](https://snyk.io/blog/10-docker-image-security-best-practices/):
+1. Prefer minimal base images
+2. Least privileged user
+3. Sign and verify images to mitigate MITM attacks
+4. Find, fix and monitor for open source vulnerabilities
+5. Don’t leak sensitive information to Docker images
+6. Use fixed tags for immutability
+7. Use COPY instead of ADD
+8. Use metadata labels
+9. Use multi-stage build for small and secure images
+10. Use a [linter](https://github.com/hadolint/hadolint)
+
 ### Docker Image Size Comparison
 
 | **Builder Stage** | **Final Stage** | **Final Image Size** |
@@ -35,8 +50,10 @@ make build && make run
 Alpine uses the musl library, and distroless uses glibc library. 
 If you are using libraries that require cgo, sometimes they don't work well with musl.
 
-**Alpine** is basically busybox linux with a package manager.
-**Distroless** is basically debian _without_ a package manager.
++ **Alpine** is basically busybox linux with a package manager.
++ **Distroless** is basically debian _without_ a package manager.
+
+Making Alpine secure is more work
 
 Distroless has [different tags for base images](https://console.cloud.google.com/gcr/images/distroless/GLOBAL/base?gcrImageListsize=10) not always mentioned in documentation :
 
