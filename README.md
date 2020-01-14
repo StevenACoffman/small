@@ -16,7 +16,7 @@ help                           - Show help message
 lint                           - Lint the application code for problems and nits
 ls                             - List size docker images
 run                            - Runs go run main.go
-test                           - Runs go test with default values```
+test                           - Runs go test with default values
 ```
 
 ### Quickstart 
