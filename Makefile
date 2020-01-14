@@ -14,49 +14,49 @@ BUILD=`date +%FT%T%z`
 LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Build=${BUILD}"
 
 .PHONY: build
-## build: build the application
-build: clean
-	@echo "Building..."
+build: clean ## - Build the application
+	@printf "\033[32m\xE2\x9c\x93 Building your code\n\033[0m"
 	@go build -o ${APP} main.go
 
 .PHONY: run
-## run: runs go run main.go
-run:
+run: build ## - Runs go run main.go
+	@printf "\033[32m\xE2\x9c\x93 Running your code\n\033[0m"
 	go run -race main.go
 
 .PHONY: clean
-## clean: cleans the binary
-clean:
-	@echo "Cleaning"
+clean: ## - Cleans the binary
+	@printf "\033[32m\xE2\x9c\x93 Cleaning your code\n\033[0m"
 	@rm -rf ${APP}
 	@go get -u -v golang.org/x/tools/cmd/goimports
+	@go get -u -v github.com/segmentio/golines
 	@gofmt -l -w -s .
 	@goimports -l -w .
+	@golines -m 80
 
 .PHONY: test
-## test: runs go test with default values
-test:
+test: ## - Runs go test with default values
+	@printf "\033[32m\xE2\x9c\x93 Testing your code to find potential problems\n\033[0m"
 	go test -v -count=1 -race ./...
 
 .PHONY: lint
-## lint: lint the application code for problems
-lint:
+lint: clean ## - Lint the application code for problems and nits
+	@printf "\033[32m\xE2\x9c\x93 Linting your code to find potential problems\n\033[0m"
 	@golangci-lint run
 
 .PHONY: docker-build
-docker-build:	## - Build the smallest and secured golang docker image based on distroless static
+docker-build:	## - Build the smallest secure golang docker image based on distroless static
 	@printf "\033[32m\xE2\x9c\x93 Build the smallest and secured golang docker image based on distroless static\n\033[0m"
 	@export DOCKER_CONTENT_TRUST=1 && docker build -f Dockerfile -t ${REGISTRY}/${APP}:${COMMIT_SHA} .
 
 .PHONY: docker-build-no-cache
-docker-build-no-cache:	## - Build the smallest and secured golang docker image based on scratch with no cache
+docker-build-no-cache:	## - Build the smallest secure golang docker image based on distroless static with no cache
 	@printf "\033[32m\xE2\x9c\x93 Build the smallest and secured golang docker image based on scratch\n\033[0m"
 	@export DOCKER_CONTENT_TRUST=1 && docker build --no-cache -f Dockerfile -t ${REGISTRY}/${APP}:${COMMIT_SHA} .
 
 .PHONY: ls
-ls: ## - List 'smallest-secured-golang' docker images
+ls: ## - List size docker images
 	@printf "\033[32m\xE2\x9c\x93 Look at the size dude !\n\033[0m"
-	@docker image ls ${REGISTRY}/${APP}
+	@docker image ${REGISTRY}/${APP}:${COMMIT_SHA}
 
 .PHONY: docker-run
 docker-run:	## - Run the smallest and secured golang docker image based on distroless static
@@ -64,8 +64,7 @@ docker-run:	## - Run the smallest and secured golang docker image based on distr
 	@docker run ${REGISTRY}/${APP}:${COMMIT_SHA}
 
 .PHONY: docker-push
-## docker-push: pushes the stringifier docker image to registry
-docker-push: docker-build
+docker-push: docker-build ## - Pushes the docker image to registry
 	docker push ${REGISTRY}/${APP}:${COMMIT_SHA}
 
 .PHONY: help
