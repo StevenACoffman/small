@@ -5,7 +5,6 @@ Restricting what's in your runtime container to precisely what's necessary for y
 
 Running your containers as non-root prevents malicious code from gaining permissions in the container host and means that not just anyone who has pulled your container from the Docker Hub can gain access to everything on your server, for example.
 
-
 ```
 ✓ usage: make [target]
 
@@ -28,7 +27,7 @@ test                           - Runs go test with default values
 make build && make run
 ```
 
-#### [Security Best Practices](https://snyk.io/blog/10-docker-image-security-best-practices/):
+#### [Docker Security Best Practices](https://snyk.io/blog/10-docker-image-security-best-practices/):
 1. Prefer minimal base images
 2. Least privileged user
 3. Sign and verify images to mitigate MITM attacks
@@ -47,15 +46,22 @@ make build && make run
 | `golang:1.13.6-alpine3.11` | `scratch` | **6.84MB**  |
 | `golang:1.13.6-buster` | `gcr.io/distroless/static:nonroot` | **7.27MB** |
 
-Alpine uses the musl library, and distroless uses glibc library. 
+Alpine uses the musl library, and [Distroless](https://github.com/GoogleContainerTools/distroless/tree/master/base) uses glibc library. 
 If you are using libraries that require cgo, sometimes they don't work well with musl.
 
 + **Alpine** is basically busybox linux with a package manager.
 + **Distroless** is basically debian _without_ a package manager.
 
-Making Alpine secure is more work
+`gcr.io/distroless/static` contains:
 
-Distroless has [different tags for base images](https://console.cloud.google.com/gcr/images/distroless/GLOBAL/base?gcrImageListsize=10) not always mentioned in documentation :
+* ca-certificates
+* A /etc/passwd entry for a root user and nobody (unprivileged)
+* A /tmp directory
+* tzdata
+
+The `Dockerfile.alpine` here shows how securing alpine-based docker builds is more complicated than with distroless.
+
+BTW, Distroless has [different tags for base images](https://console.cloud.google.com/gcr/images/distroless/GLOBAL/base?gcrImageListsize=10) not always mentioned in documentation :
 
 + latest
 + debug
@@ -67,6 +73,8 @@ Distroless has [different tags for base images](https://console.cloud.google.com
 Alpine Docker container inspired by [this excellent article](https://medium.com/@chemidy/create-the-smallest-and-secured-golang-docker-image-based-on-scratch-4752223b7324)
 
 ### Wanna get **real** small?
-If you add upx to your builder, you can shrink the binary even more:
+If you add upx to your builder stage, you can shrink the binary even more:
 `upx --brute app`
-This is slow and minutely impacts startup time and resources.
+This is is very slow to build and minutely impacts startup time and resources.
+
+However, you can often fit the result on a floppy disk, so that's cool.
