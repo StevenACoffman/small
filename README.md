@@ -1,4 +1,4 @@
-# Get Small with Docker
+# Get Small with Docker and Go
 ### Create the smallest secured golang docker image
 
 Restricting what's in your runtime container to precisely what's necessary for your app is a best practice employed by Google and other tech giants that have used containers in production for many years. It improves the signal to noise of scanners (e.g. CVE) and reduces the burden of establishing provenance to just what you need.
@@ -48,3 +48,8 @@ Distroless has [different tags for base images](https://console.cloud.google.com
 ### Credit Where It Is Due
 
 Alpine Docker container inspired by [this excellent article](https://medium.com/@chemidy/create-the-smallest-and-secured-golang-docker-image-based-on-scratch-4752223b7324)
+
+### Wanna get **real** small?
+If you add upx to your builder, you can shrink the binary even more:
+`upx --brute app`
+This is slow and minutely impacts startup time and resources.
