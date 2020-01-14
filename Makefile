@@ -36,7 +36,13 @@ clean: ## - Cleans the binary
 .PHONY: test
 test: ## - Runs go test with default values
 	@printf "\033[32m\xE2\x9c\x93 Testing your code to find potential problems\n\033[0m"
-	go test -v -count=1 -race ./...
+	@go test -v -count=1 -race ./...
+
+.PHONY: cover
+cover: test ## - Runs test coverage report
+	@printf "\033[32m\xE2\x9c\x93 Running Code Test Coverage Report\n\033[0m"
+	@go test -count=1 -coverprofile=coverage.out
+	@go tool cover -html=coverage.out
 
 .PHONY: lint
 lint: clean ## - Lint the application code for problems and nits
