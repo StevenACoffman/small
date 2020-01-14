@@ -27,7 +27,7 @@ make build && make run
 
 ### Docker Image Size Comparison
 
-| **Builder Stage** | **Final Stage** | | **Final Image Size** |
+| **Builder Stage** | **Final Stage** | **Final Image Size** |
 |---|---|---|
 | `golang:1.13.6-alpine3.11` | `scratch` | **6.84MB**  |
 | `golang:1.13.6-buster` | `gcr.io/distroless/static:nonroot` | **7.27MB** |
