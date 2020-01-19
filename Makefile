@@ -51,7 +51,6 @@ lint: clean ## - Lint the application code for problems and nits
 .PHONY: docker-build
 docker-build:	## - Build the smallest secure golang docker image based on distroless static
 	@printf "\033[32m\xE2\x9c\x93 Build the smallest and secured golang docker image based on distroless static\n\033[0m"
-	printf "${REGISTRY} ${APP} ${COMMIT_SHA}"
 	docker build -f Dockerfile -t ${REGISTRY}/${APP}:${COMMIT_SHA} .
 
 .PHONY: docker-build-no-cache
