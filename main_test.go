@@ -6,27 +6,36 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"os/signal"
 	"syscall"
 	"testing"
 	"time"
 )
 
-func TestGrace(t *testing.T) {
-	t.Run("Wait with func", func(t *testing.T) {
-		var result int
-
-		result = 1
+func TestGracefulExit(t *testing.T) {
+	t.Run("Runserver gracefully exits", func(t *testing.T) {
+		var finished bool
+		// Get the operating system process
+		proc, err := os.FindProcess(os.Getpid())
+		if err != nil {
+			t.Fatal(err)
+		}
+		// Discard noisy logs
 		logger := log.New(ioutil.Discard, "", log.LstdFlags)
 		go func() {
-			_ = runServer(logger)
-			result = 1
+			runServer(logger)
+			finished = true
 		}()
-		syscall.Kill(os.Getppid(), syscall.SIGUSR1)
-
+		// if we signal too early, Waiter isn't listening yet
 		time.Sleep(10 * time.Millisecond)
-
-		if result != 1 {
-			t.Error("Result is not equal 1")
+		// Send the SIGQUIT
+		proc.Signal(syscall.SIGQUIT)
+		// if we test finished too early, finished may not have been updated yet
+		time.Sleep(10 * time.Millisecond)
+		// reset signal notification
+		signal.Reset()
+		if !finished {
+			t.Error("runServer Did Not Exit")
 		}
 	})
 }

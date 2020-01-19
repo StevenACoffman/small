@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -11,42 +10,6 @@ import (
 	"syscall"
 	"time"
 )
-
-// ServerHandler implements type http.Handler interface, with our logger
-type ServerHandler struct {
-	logger *log.Logger
-	mux    *http.ServeMux
-	once   sync.Once
-}
-
-func (s *ServerHandler) SetLogger(logger *log.Logger) {
-	s.logger = logger
-}
-
-func (s *ServerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// on the first request only, lazily initialize
-	s.once.Do(func() {
-		if s.logger == nil {
-			fmt.Println("No logger")
-		}
-		s.mux = http.NewServeMux()
-		s.mux.HandleFunc("/favicon.ico", s.RedirectToHome)
-		s.mux.HandleFunc("/health", HealthCheck)
-	})
-
-	s.mux.ServeHTTP(w, r)
-}
-
-func HealthCheck(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain")
-	w.Header().Set("Content-Length", "0")
-	w.WriteHeader(200)
-}
-
-func (s *ServerHandler) RedirectToHome(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("location", "/")
-	w.WriteHeader(http.StatusSeeOther)
-}
 
 func main() {
 	logger := log.New(os.Stdout,
@@ -63,7 +26,6 @@ func main() {
 }
 
 func runServer(logger *log.Logger) error {
-
 	httpServer := NewHTTPServer(logger)
 	// make a buffered channel for Signals
 	quit := make(chan os.Signal, 1)
@@ -86,7 +48,7 @@ func runServer(logger *log.Logger) error {
 		}
 	}()
 
-	// listen and serve until error or shutdown is called
+	// listen and serve blocks until error or shutdown is called
 	if err := httpServer.ListenAndServe(); err != http.ErrServerClosed {
 		return err
 	}
@@ -95,14 +57,13 @@ func runServer(logger *log.Logger) error {
 
 // NewHTTPServer is factory function to initialize a new server
 func NewHTTPServer(logger *log.Logger) *http.Server {
-
 	addr := ":" + os.Getenv("PORT")
 	if addr == ":" {
 		addr = ":8080"
 	}
 
 	s := &ServerHandler{}
-	//pass logger
+	// pass logger
 	s.SetLogger(logger)
 
 	h := &http.Server{
@@ -113,4 +74,48 @@ func NewHTTPServer(logger *log.Logger) *http.Server {
 	}
 
 	return h
+}
+
+// ServerHandler implements type http.Handler interface, with our logger
+type ServerHandler struct {
+	logger *log.Logger
+	mux    *http.ServeMux
+	once   sync.Once
+}
+
+// SetLogger provides external injection of logger
+func (s *ServerHandler) SetLogger(logger *log.Logger) {
+	s.logger = logger
+}
+
+// ServeHTTP satisfies Handler interface, sets up the Path Routing
+func (s *ServerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// on the first request only, lazily initialize
+	s.once.Do(func() {
+		if s.logger == nil {
+			s.logger = log.New(os.Stdout,
+				"INFO: ",
+				log.Ldate|log.Ltime|log.Lshortfile)
+			s.logger.Printf("Default Logger used")
+		}
+		s.mux = http.NewServeMux()
+		s.mux.HandleFunc("/redirect", s.RedirectToHome)
+		s.mux.HandleFunc("/health", HealthCheck)
+	})
+
+	s.mux.ServeHTTP(w, r)
+}
+
+// HealthCheck verifies externally that the program is still responding
+func HealthCheck(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain")
+	w.Header().Set("Content-Length", "0")
+	w.WriteHeader(200)
+}
+
+// RedirectToHome Will Log the Request, and respond with a HTTP 303 to redirect to /
+func (s *ServerHandler) RedirectToHome(w http.ResponseWriter, r *http.Request) {
+	s.logger.Printf("Redirected request %v to /", r.RequestURI)
+	w.Header().Add("location", "/")
+	w.WriteHeader(http.StatusSeeOther)
 }

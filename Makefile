@@ -51,7 +51,7 @@ lint: clean ## - Lint the application code for problems and nits
 .PHONY: docker-build
 docker-build:	## - Build the smallest secure golang docker image based on distroless static
 	@printf "\033[32m\xE2\x9c\x93 Build the smallest and secured golang docker image based on distroless static\n\033[0m"
-	docker build -f Dockerfile -t ${REGISTRY}/${APP}:${COMMIT_SHA} .
+	export DOCKER_CONTENT_TRUST=1 && docker build -f Dockerfile -t ${REGISTRY}/${APP}:${COMMIT_SHA} .
 
 .PHONY: docker-build-no-cache
 docker-build-no-cache:	## - Build the smallest secure golang docker image based on distroless static with no cache
@@ -65,9 +65,9 @@ ls: ## - List size docker images
 	docker image ls ${REGISTRY}/${APP}
 
 .PHONY: docker-run
-docker-run:	## - Run the smallest and secured golang docker image based on distroless static
+docker-run:	docker-build ## - Run the smallest and secured golang docker image based on distroless static nonroot
 	@printf "\033[32m\xE2\x9c\x93 Run the smallest and secured golang docker image based on scratch\n\033[0m"
-	docker run ${REGISTRY}/${APP}:${COMMIT_SHA}
+	docker run -p 127.0.0.1:8080:8080/tcp ${REGISTRY}/${APP}:${COMMIT_SHA}
 
 .PHONY: docker-push
 docker-push: docker-build ## - Pushes the docker image to registry

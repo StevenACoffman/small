@@ -1,13 +1,10 @@
-ARG GO_VERSION=1.13.6
-ARG DEBIAN_VERSION=buster
-ARG BASE_IMAGE=gcr.io/distroless/static:nonroot
 ############################
 # STEP 1 build executable binary
 ############################
 # golang debian buster 1.13.6 linux/amd64
-# FROM golang:${GO_VERSION}-${DEBIAN_VERSION}
 # https://github.com/docker-library/golang/blob/master/1.13/buster/Dockerfile
-FROM golang:${GO_VERSION}-${DEBIAN_VERSION} as builder
+# FROM golang:1.13.6-buster as builder
+FROM golang@sha256:f6cefbdd25f9a66ec7dcef1ee5deb417882b9db9629a724af8a332fe54e3f7b3
 
 # Ensure ca-certficates are up to date
 RUN update-ca-certificates
@@ -37,9 +34,9 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
 ############################
 # STEP 2 build a small image
 ############################
-# FROM gcr.io/distroless/static:nonroot
 # user:group is nobody:nobody, uid:gid = 65534:65534
-FROM ${BASE_IMAGE}
+# FROM gcr.io/distroless/static:nonroot
+FROM gcr.io/distroless/static@sha256:08322afd57db6c2fd7a4264bf0edd9913176835585493144ee9ffe0c8b576a76
 
 # Copy our static executable
 COPY --from=builder /go/bin/main /go/bin/main
