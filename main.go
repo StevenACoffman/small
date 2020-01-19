@@ -16,10 +16,10 @@ import (
 type ServerHandler struct {
 	logger *log.Logger
 	mux    *http.ServeMux
-	once sync.Once
+	once   sync.Once
 }
 
-func  (s *ServerHandler) SetLogger(logger *log.Logger) {
+func (s *ServerHandler) SetLogger(logger *log.Logger) {
 	s.logger = logger
 }
 
@@ -106,15 +106,11 @@ func NewHTTPServer(logger *log.Logger) *http.Server {
 	s.SetLogger(logger)
 
 	h := &http.Server{
-		Addr: addr,
-		Handler: s,
+		Addr:         addr,
+		Handler:      s,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
 	return h
 }
-
-
-
-

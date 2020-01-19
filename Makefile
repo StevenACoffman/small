@@ -16,7 +16,7 @@ LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Build=${BUILD}"
 .PHONY: build
 build: clean ## - Build the application
 	@printf "\033[32m\xE2\x9c\x93 Building your code\n\033[0m"
-	@go build -o ${APP} main.go
+	go build -o ${APP} main.go
 
 .PHONY: run
 run: build ## - Runs go run main.go
@@ -26,50 +26,48 @@ run: build ## - Runs go run main.go
 .PHONY: clean
 clean: ## - Cleans the binary
 	@printf "\033[32m\xE2\x9c\x93 Cleaning your code\n\033[0m"
-	@rm -rf ${APP}
-	@go get -u -v golang.org/x/tools/cmd/goimports
-	@go get -u -v github.com/segmentio/golines
-	@gofmt -l -w -s .
-	@goimports -l -w .
-	@golines -m 80
-	@go mod tidy
+	rm -rf ${APP}
+	go get -u -v golang.org/x/tools/cmd/goimports
+	gofmt -l -w -s .
+	goimports -l -w .
+	go mod tidy
 
 .PHONY: test
 test: ## - Runs go test with default values
 	@printf "\033[32m\xE2\x9c\x93 Testing your code to find potential problems\n\033[0m"
-	@go test -v -count=1 -race ./...
+	go test -v -count=1 -race ./...
 
 .PHONY: cover
 cover: test ## - Runs test coverage report
 	@printf "\033[32m\xE2\x9c\x93 Running Code Test Coverage Report\n\033[0m"
-	@go test -count=1 -coverprofile=coverage.out
-	@go tool cover -html=coverage.out
+	go test -count=1 -coverprofile=coverage.out
+	go tool cover -html=coverage.out
 
 .PHONY: lint
 lint: clean ## - Lint the application code for problems and nits
 	@printf "\033[32m\xE2\x9c\x93 Linting your code to find potential problems\n\033[0m"
-	@golangci-lint run
+	golangci-lint run
 
 .PHONY: docker-build
 docker-build:	## - Build the smallest secure golang docker image based on distroless static
 	@printf "\033[32m\xE2\x9c\x93 Build the smallest and secured golang docker image based on distroless static\n\033[0m"
-	@export DOCKER_CONTENT_TRUST=1 && docker build -f Dockerfile -t ${REGISTRY}/${APP}:${COMMIT_SHA} .
+	export DOCKER_CONTENT_TRUST=1 && docker build -f Dockerfile -t ${REGISTRY}/${APP}:${COMMIT_SHA} .
 
 .PHONY: docker-build-no-cache
 docker-build-no-cache:	## - Build the smallest secure golang docker image based on distroless static with no cache
 	@printf "\033[32m\xE2\x9c\x93 Build the smallest and secured golang docker image based on scratch\n\033[0m"
-	@export DOCKER_CONTENT_TRUST=1 && docker build --no-cache -f Dockerfile -t ${REGISTRY}/${APP}:${COMMIT_SHA} .
+	export DOCKER_CONTENT_TRUST=1 && docker build --no-cache -f Dockerfile -t ${REGISTRY}/${APP}:${COMMIT_SHA} .
 
 .PHONY: ls
 ls: ## - List size docker images
 	@printf "\033[32m\xE2\x9c\x93 Look at the size dude !\n\033[0m"
 	@echo image ls ${REGISTRY}/${APP}
-	@docker image ls ${REGISTRY}/${APP}
+	docker image ls ${REGISTRY}/${APP}
 
 .PHONY: docker-run
 docker-run:	## - Run the smallest and secured golang docker image based on distroless static
 	@printf "\033[32m\xE2\x9c\x93 Run the smallest and secured golang docker image based on scratch\n\033[0m"
-	@docker run ${REGISTRY}/${APP}:${COMMIT_SHA}
+	docker run ${REGISTRY}/${APP}:${COMMIT_SHA}
 
 .PHONY: docker-push
 docker-push: docker-build ## - Pushes the docker image to registry
@@ -79,4 +77,4 @@ docker-push: docker-build ## - Pushes the docker image to registry
 ## help: Prints this help message
 help: ## - Show help message
 	@printf "\033[32m\xE2\x9c\x93 usage: make [target]\n\n\033[0m"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+	grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
