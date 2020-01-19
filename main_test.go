@@ -1,6 +1,8 @@
 package main
 
 import (
+	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -14,8 +16,9 @@ func TestGrace(t *testing.T) {
 		var result int
 
 		result = 1
+		logger := log.New(ioutil.Discard, "", log.LstdFlags)
 		go func() {
-			_ = runServer()
+			_ = runServer(logger)
 			result = 1
 		}()
 		syscall.Kill(os.Getppid(), syscall.SIGUSR1)
