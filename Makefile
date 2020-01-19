@@ -9,8 +9,8 @@ GO11MODULES=on
 APP?=application
 REGISTRY?=stevenacoffman
 COMMIT_SHA=$(shell git rev-parse --short HEAD)
-VERSION=`git rev-parse HEAD`
-BUILD=`date +%FT%T%z`
+VERSION=$(shell git rev-parse HEAD)
+BUILD=$(shell date +%FT%T%z)
 LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Build=${BUILD}"
 
 .PHONY: build
@@ -51,7 +51,8 @@ lint: clean ## - Lint the application code for problems and nits
 .PHONY: docker-build
 docker-build:	## - Build the smallest secure golang docker image based on distroless static
 	@printf "\033[32m\xE2\x9c\x93 Build the smallest and secured golang docker image based on distroless static\n\033[0m"
-	export DOCKER_CONTENT_TRUST=1 && docker build -f Dockerfile -t ${REGISTRY}/${APP}:${COMMIT_SHA} .
+	printf "${REGISTRY} ${APP} ${COMMIT_SHA}"
+	docker build -f Dockerfile -t ${REGISTRY}/${APP}:${COMMIT_SHA} .
 
 .PHONY: docker-build-no-cache
 docker-build-no-cache:	## - Build the smallest secure golang docker image based on distroless static with no cache
