@@ -1,9 +1,9 @@
 # Get Small with Distroless Docker and Go
 ### Create the smallest secured golang docker image
 
-Restricting what's in your runtime container to precisely what's necessary for your app is a best practice employed by Google and other tech giants that have used containers in production for many years. It improves the signal to noise of scanners (e.g. CVE) and reduces the burden of establishing provenance to just what you need.
+Restricting what's in your runtime container to precisely what's necessary for your app is a best practice employed by Google and other tech giants that have used containers in production for many years. Security scanners finding vulnerabilities (e.g. CVE) in unrelated baggage just adds tedious maintenance work. Skip all that and just maintain only what you need.
 
-Running your containers as non-root prevents malicious code from gaining permissions in the container host and means that not just anyone who has pulled your container from the Docker Hub can gain access to everything on your server, for example.
+Running your containers as a non-root user prevents malicious code from gaining permissions in the container host and means that not just anyone who has pulled your container from the Docker Hub can gain access to everything on your server, for example.
 
 ```
 ✓ usage: make [target]
@@ -21,6 +21,7 @@ run                            - Runs go run main.go
 test                           - Runs go test with default values
 ```
 
+`make run` will start a webserver that will listen and respond http://127.0.0.1:8080/health and everything else gives 404 Not Found.
 ### Quickstart 
 
 ```

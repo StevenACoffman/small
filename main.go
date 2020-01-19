@@ -31,7 +31,7 @@ func (s *ServerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		s.mux = http.NewServeMux()
 		s.mux.HandleFunc("/favicon.ico", s.RedirectToHome)
-		s.mux.HandleFunc("/", HealthCheck)
+		s.mux.HandleFunc("/health", HealthCheck)
 	})
 
 	s.mux.ServeHTTP(w, r)
