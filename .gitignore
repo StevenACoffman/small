@@ -97,3 +97,4 @@ fabric.properties
 *.pem
 ## Ignore executable
 application
+small

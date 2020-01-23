@@ -12,9 +12,13 @@ import (
 )
 
 func main() {
+	// =========================================================================
+	// App Starting
 	logger := log.New(os.Stdout,
 		"INFO: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
+	logger.Printf("main : Started")
+	defer logger.Println("main : Completed")
 	err := runServer(logger)
 	if err == nil {
 		logger.Println("finished clean")
@@ -26,33 +30,60 @@ func main() {
 }
 
 func runServer(logger *log.Logger) error {
-	httpServer := NewHTTPServer(logger)
-	// make a buffered channel for Signals
-	quit := make(chan os.Signal, 1)
+	// =========================================================================
+	// Start API Service
+	api := NewHTTPServer(logger)
+	// Make a channel to listen for errors coming from the listener. Use a
+	// buffered channel so the goroutine can exit if we don't collect this error.
+	serverErrors := make(chan error, 1)
 
+	// Start the service listening for requests.
+	go func() {
+		logger.Printf("main : API listening on %s", api.Addr)
+		// listen and serve blocks until error or shutdown is called
+		serverErrors <- api.ListenAndServe()
+	}()
+
+	// Make a channel to listen for an interrupt or terminate signal from the OS.
+	// Use a buffered channel because the signal package requires it.
+	shutdown := make(chan os.Signal, 1)
 	// listen for all interrupt signals, send them to quit channel
-	signal.Notify(quit,
+	signal.Notify(shutdown,
 		os.Interrupt,    // interrupt = SIGINT = Ctrl+C
 		syscall.SIGQUIT, // Ctrl-\
 		syscall.SIGTERM, // "the normal way to politely ask a program to terminate"
 	)
 
-	// receive signals on quit channel, tell server to shutdown
-	go func() {
-		//cleanup: on interrupt shutdown webserver
-		<-quit
-		err := httpServer.Shutdown(context.Background())
+	// =========================================================================
+	// Shutdown
+
+	// Blocking main and waiting for shutdown.
+	select {
+	case err := <-serverErrors:
+		logger.Fatalf("error: listening and serving: %s", err)
+		return err
+
+	case <-shutdown:
+		logger.Println("runServer : Start shutdown")
+
+		// Give outstanding requests a deadline for completion.
+		const timeout = 5 * time.Second
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+
+		// Asking listener to shutdown and load shed.
+		err := api.Shutdown(ctx)
+		if err != nil {
+			logger.Printf("runServer : Graceful shutdown did not complete in %v : %v", timeout, err)
+			err = api.Close()
+			return err
+		}
 
 		if err != nil {
-			logger.Printf("An error occurred on shutdown: %v", err)
+			logger.Fatalf("runServer : could not stop server gracefully : %v", err)
 		}
-	}()
-
-	// listen and serve blocks until error or shutdown is called
-	if err := httpServer.ListenAndServe(); err != http.ErrServerClosed {
 		return err
 	}
-	return nil
 }
 
 // NewHTTPServer is factory function to initialize a new server
