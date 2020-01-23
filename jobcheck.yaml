@@ -40,8 +40,8 @@ spec:
           allowPrivilegeEscalation: false
           privileged: false
           readOnlyRootFilesystem: true
-          runAsUser: 65534
-          runAsGroup: 65534
+          runAsUser: 65534 # nobody
+          runAsGroup: 65534 # nobody_group
         volumeMounts:
           - name: tempdir
             mountPath: "/tmp"
