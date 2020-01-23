@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    test: liveness
+  name: liveness-exec
+spec:
+  ttlSecondsAfterFinished: 100
+  backoffLimit: 4
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: small
+        image: docker.io/stevenacoffman/small
+        command:
+          - /go/bin/application
+        args:
+        - sentinel
+        - 30
+        terminationMessagePolicy: FallbackToLogsOnError
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 8080
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "100m"
+          limits:
+            memory: "200Mi"
+            cpu: "500m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsUser: 65534
+          runAsGroup: 65534
+        volumeMounts:
+          - name: tempdir
+            mountPath: "/tmp"
+      volumes:
+      - name: tempdir
+        emptyDir: {}
