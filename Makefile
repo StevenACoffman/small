@@ -5,7 +5,7 @@ SHELL := bash
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
-GO11MODULES=on
+GO111MODULE=on
 APP?=application
 REGISTRY?=stevenacoffman
 COMMIT_SHA=$(shell git rev-parse --short HEAD)
