@@ -12,17 +12,14 @@ spec:
       restartPolicy: Never
       containers:
       - name: small
-        image: docker.io/stevenacoffman/small
+        image: docker.io/stevenacoffman/small:d91293fb6b1487fea58f1a960e41622d1f8d8d39
+        imagePullPolicy: Always
         command:
           - /go/bin/application
         args:
         - sentinel
-        - 30
+        - "30"
         terminationMessagePolicy: FallbackToLogsOnError
-    livenessProbe:
-      httpGet:
-        path: /health
-        port: 8080
         livenessProbe:
           httpGet:
             path: /health
@@ -43,8 +40,8 @@ spec:
           runAsUser: 65534 # nobody
           runAsGroup: 65534 # nobody_group
         volumeMounts:
-          - name: tempdir
-            mountPath: "/tmp"
+        - name: tempdir
+        mountPath: "/tmp"
       volumes:
       - name: tempdir
         emptyDir: {}
