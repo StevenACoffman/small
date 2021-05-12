@@ -78,10 +78,6 @@ func runServer(logger *log.Logger) error {
 			err = api.Close()
 			return err
 		}
-
-		if err != nil {
-			logger.Fatalf("runServer : could not stop server gracefully : %v", err)
-		}
 		return err
 	}
 }
@@ -90,7 +86,7 @@ func runServer(logger *log.Logger) error {
 func NewHTTPServer(logger *log.Logger) *http.Server {
 	addr := ":" + os.Getenv("PORT")
 	if addr == ":" {
-		addr = ":8080"
+		addr = ":3000"
 	}
 
 	s := &ServerHandler{}
@@ -132,13 +128,22 @@ func (s *ServerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.mux = http.NewServeMux()
 		s.mux.HandleFunc("/redirect", s.RedirectToHome)
 		s.mux.HandleFunc("/health", HealthCheck)
+		s.mux.HandleFunc("/", s.HelloHome)
 	})
 
 	s.mux.ServeHTTP(w, r)
 }
 
+func  (s *ServerHandler) HelloHome(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Set("Content-Type", "text/plain")
+	_, err := w.Write([]byte("Hello, World!"))
+	if err != nil {
+		s.logger.Println("error writing hello world:", err)
+	}
+}
+
 // HealthCheck verifies externally that the program is still responding
-func HealthCheck(w http.ResponseWriter, r *http.Request) {
+func HealthCheck(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Set("Content-Length", "0")
 	w.WriteHeader(200)

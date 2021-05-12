@@ -1,0 +1,51 @@
+apiVersion: skaffold/v2beta15
+kind: Config
+metadata:
+  name: example-app
+## Default profile for use with `skaffold dev`
+build:
+  insecureRegistries: 
+   - registry.local:5000
+  artifacts:
+  - image: registry.local:5000/example-app
+    docker:
+      dockerfile: ./Dockerfile
+deploy:
+  kustomize:
+    paths: 
+    - k8s/overlays/local
+  kubeContext: k3d-k3s-local
+profiles:
+  - name: local
+    deploy:
+      kustomize:
+        paths: 
+          - k8s/overlays/local
+      kubeContext: k3d-k3s-local
+
+  - name: test
+    ## This profile runs unit tests and builds the image
+    build:
+      local: { push: false }
+      artifacts:
+      - image: StevenACoffman/example
+        docker:
+          dockerfile: ./Dockerfile
+    deploy: {} # not needed here as such
+
+  - name: production
+    ## This profile pushes the image
+    build:
+      local: { push: true }
+      artifacts:
+      - image: StevenACoffman/example
+        docker:
+          dockerfile: ./Dockerfile
+    deploy: {} # no-op, flux will take care of this
+
+portForward:
+  - resourceType: service
+    resourceName: example-app
+    namespace: default
+    port: 3000
+    localPort: 3000

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-app
+  labels:
+    app: example-app
+    tier: backend
+spec:
+  selector:
+    matchLabels:
+      app: example-app
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: example-app
+        tier: backend
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+      containers:
+        - name: example-app
+          image: example-app:latest
+          imagePullPolicy: IfNotPresent
+          command: ["/go/bin/main"]
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            limits:
+              cpu: 50m
+              memory: 128Mi
+            requests:
+              cpu: 10m
+              memory: 64Mi
+          ports:
+            - name: http-port
+              containerPort: 3000
+          securityContext:
+            allowPrivilegeEscalation: false
