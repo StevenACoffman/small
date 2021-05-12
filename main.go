@@ -18,7 +18,6 @@ func main() {
 		"INFO: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 	logger.Printf("main : Started")
-	defer logger.Println("main : Completed")
 	err := runServer(logger)
 	if err == nil {
 		logger.Println("finished clean")
