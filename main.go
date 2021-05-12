@@ -134,7 +134,7 @@ func (s *ServerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.mux.ServeHTTP(w, r)
 }
 
-func  (s *ServerHandler) HelloHome(w http.ResponseWriter, _ *http.Request) {
+func (s *ServerHandler) HelloHome(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
 	_, err := w.Write([]byte("Hello, World!"))
 	if err != nil {

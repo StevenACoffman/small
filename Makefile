@@ -13,7 +13,7 @@ GOPRIVATE?=github.com/StevenACoffman
 INSTALLPATH?=${GOBIN}/${APP}
 IMAGE_NAME=${APP}
 REGISTRY?=stevenacoffman
-REPOSITORY=${REGISTRY}/{IMAGE_NAME}
+REPOSITORY=${REGISTRY}/${IMAGE_NAME}
 COMMIT_SHA=$(shell git rev-parse --short HEAD)
 VERSION=$(shell git rev-parse HEAD)
 BUILD_DATE?=$(shell date +'%s')
@@ -59,12 +59,12 @@ lint: clean ## - Lint the application code for problems and nits
 .PHONY: docker-build
 docker-build:	## - Build the smallest secure golang docker image based on distroless static
 	@printf "\033[32m\xE2\x9c\x93 Build the smallest and secured golang docker image based on distroless static\n\033[0m"
-	docker build -f ./Dockerfile -t ${REPOSITORY}:${COMMIT_SHA} ..
+	docker build -f ./Dockerfile -t ${REPOSITORY}:${COMMIT_SHA} .
 
 .PHONY: docker-build-no-cache
 docker-build-no-cache:	## - Build the smallest secure golang docker image based on distroless static with no cache
 	@printf "\033[32m\xE2\x9c\x93 Build the smallest and secured golang docker image based on scratch\n\033[0m"
-	docker build --no-cache -f Dockerfile -t ${REPOSITORY}:${COMMIT_SHA} ..
+	docker build --no-cache -f Dockerfile -t ${REPOSITORY}:${COMMIT_SHA} .
 
 .PHONY: ls
 ls: ## - List size docker images
