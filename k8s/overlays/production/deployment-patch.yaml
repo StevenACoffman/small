@@ -1,6 +1,6 @@
 - op: add
   path: /spec/template/spec/containers/0/resources/limits/cpu
-  value: 25m
+  value: 50m
 
 - op: add
   path: /spec/template/spec/containers/0/resources/limits/memory
@@ -8,7 +8,7 @@
 
 - op: add
   path: /spec/template/spec/containers/0/resources/requests/cpu
-  value: 15m
+  value: 25m
 
 - op: add
   path: /spec/template/spec/containers/0/resources/requests/memory

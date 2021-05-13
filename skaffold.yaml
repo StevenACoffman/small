@@ -4,12 +4,14 @@ metadata:
   name: example-app
 ## Default profile for use with `skaffold dev`
 build:
+  tagPolicy:
+    gitCommit:
+      variant: CommitSha
+      ignoreChanges: true
   artifacts:
-    - image: registry.local:5000/example-app
+    - image: stevenacoffman/small
       docker:
         dockerfile: ./Dockerfile
-  insecureRegistries:
-    - registry.local:5000
 deploy:
   kustomize:
     paths:
@@ -28,21 +30,22 @@ profiles:
         paths:
           - k8s/overlays/local
       kubeContext: k3d-k3s-local
-  - name: test
     ## This profile runs unit tests and builds the image
+  - name: test
     build:
-      artifacts:
-        - image: StevenACoffman/small
-          docker:
-            dockerfile: ./Dockerfile
       local:
         push: false
+      artifacts:
+      - image: stevenacoffman/small
+        docker:
+          dockerfile: ./Dockerfile
   - name: production
     ## This profile pushes the image
     build:
-      artifacts:
-        - image: StevenACoffman/small
-          docker:
-            dockerfile: ./Dockerfile
       local:
         push: true
+    deploy:
+      kustomize:
+        paths:
+          - k8s/overlays/production
+      kubeContext: gke_khan-internal-services_us-central1-b_internal-services

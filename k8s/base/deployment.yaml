@@ -23,7 +23,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: example-app
-          image: example-app:latest
+          image: stevenacoffman/small
           imagePullPolicy: IfNotPresent
           command: ["/go/bin/main"]
           livenessProbe:
