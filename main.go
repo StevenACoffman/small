@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -29,11 +30,22 @@ func main() {
 }
 
 func runServer(logger *log.Logger) error {
+	ctx, cancel := context.WithCancel(context.Background())
 	// =========================================================================
 	// Start API Service
-	api := NewHTTPServer(logger)
-	// Make a channel to listen for errors coming from the listener. Use a
-	// buffered channel so the goroutine can exit if we don't collect this error.
+	api := NewHTTPServer(ctx, logger)
+
+	// api.RegisterOnShutdown registers a function to call on Shutdown.
+	// This can be used to gracefully shutdown connections that have
+	// undergone ALPN protocol upgrade or that have been hijacked (websockets).
+	// This function should start protocol-specific graceful shutdown,
+	// but should not wait for shutdown to complete.
+	//
+	// also if your BaseContext is more complex you might want
+	// to use this instead of calling cancel manually
+
+	// api.RegisterOnShutdown(cancel)
+
 	serverErrors := make(chan error, 1)
 
 	// Start the service listening for requests.
@@ -53,6 +65,9 @@ func runServer(logger *log.Logger) error {
 		syscall.SIGTERM, // "the normal way to politely ask a program to terminate"
 	)
 
+	// manually cancel context if not using httpServer.RegisterOnShutdown(cancel)
+	defer cancel()
+
 	// =========================================================================
 	// Shutdown
 
@@ -67,11 +82,11 @@ func runServer(logger *log.Logger) error {
 
 		// Give outstanding requests a deadline for completion.
 		const timeout = 5 * time.Second
-		ctx, cancel := context.WithTimeout(context.Background(), timeout)
-		defer cancel()
+		shutdownCtx, shutdownRelease := context.WithTimeout(ctx, timeout)
+		defer shutdownRelease()
 
 		// Asking listener to shutdown and load shed.
-		err := api.Shutdown(ctx)
+		err := api.Shutdown(shutdownCtx)
 		if err != nil {
 			logger.Printf("runServer : Graceful shutdown did not complete in %v : %v", timeout, err)
 			err = api.Close()
@@ -82,7 +97,7 @@ func runServer(logger *log.Logger) error {
 }
 
 // NewHTTPServer is factory function to initialize a new server
-func NewHTTPServer(logger *log.Logger) *http.Server {
+func NewHTTPServer(ctx context.Context, logger *log.Logger) *http.Server {
 	addr := ":" + os.Getenv("PORT")
 	if addr == ":" {
 		addr = ":3000"
@@ -97,6 +112,7 @@ func NewHTTPServer(logger *log.Logger) *http.Server {
 		Handler:      s,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
+		BaseContext:  func(_ net.Listener) context.Context { return ctx },
 	}
 
 	return h
