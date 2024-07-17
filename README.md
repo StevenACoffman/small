@@ -79,3 +79,6 @@ If you add upx to your builder stage, you can shrink the binary even more:
 This is is very slow to build and minutely impacts startup time and resources.
 
 However, you can often fit the result on a floppy disk, so that's cool.
+
+### Graceful shutdown
+This is a pretty good writeup about how to do [Graceful shutdown](https://rafallorenz.com/go/handle-signals-to-graceful-shutdown-http-server/)
