@@ -81,4 +81,4 @@ This is is very slow to build and minutely impacts startup time and resources.
 However, you can often fit the result on a floppy disk, so that's cool.
 
 ### Graceful shutdown
-This is a pretty good writeup about how to do [Graceful shutdown](https://rafallorenz.com/go/handle-signals-to-graceful-shutdown-http-server/)
+This is a pretty good writeup about how to do [Graceful shutdown](https://rafallorenz.com/go/handle-signals-to-graceful-shutdown-http-server/) as is this [errgroup / waitgroup one](https://www.rudderstack.com/blog/implementing-graceful-shutdown-in-go/)
