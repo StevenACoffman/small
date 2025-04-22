@@ -73,6 +73,10 @@ BTW, Distroless has [different tags for base images](https://console.cloud.googl
 
 Alpine Docker container inspired by [this excellent article](https://medium.com/@chemidy/create-the-smallest-and-secured-golang-docker-image-based-on-scratch-4752223b7324)
 
+### More to read
+
+[Go docker images: small and simple](https://laurentsv.com/blog/2024/06/25/stop-the-go-and-docker-madness.html)
+
 ### Wanna get **real** small?
 If you add upx to your builder stage, you can shrink the binary even more:
 `upx --brute app`
