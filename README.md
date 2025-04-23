@@ -77,6 +77,17 @@ Alpine Docker container inspired by [this excellent article](https://medium.com/
 
 [Go docker images: small and simple](https://laurentsv.com/blog/2024/06/25/stop-the-go-and-docker-madness.html)
 
+### To Do:
+I would like to add:
+```
+  // Per https://pkg.go.dev/runtime/debug#SetMemoryLimit
+  // A negative input does not adjust the limit, and allows for retrieval of the currently set memory limit.
+	memlimit := debug.SetMemoryLimit(-1)
+	if memlimit == math.MaxInt64 {
+		log.Warnf("Memory limit not set, please set the GOMEMLIMIT env var; e.g. GOMEMLIMIT=1GiB")
+	}
+```
+
 ### Wanna get **real** small?
 If you add upx to your builder stage, you can shrink the binary even more:
 `upx --brute app`
